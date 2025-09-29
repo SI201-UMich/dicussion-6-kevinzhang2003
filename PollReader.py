@@ -145,7 +145,25 @@ class PollReader():
             tuple: A tuple containing the average polling percentages for Harris and Trump
                    among likely voters, in that order.
         """
-        pass
+        h_total = 0.0
+        t_total = 0.0
+        count = 0
+
+        # Iterate by index to match rows
+        i = 0
+        while i < len(self.data_dict['sample type']):
+            if self.data_dict['sample type'][i] == "LV":
+                h_total = h_total + self.data_dict['Harris result'][i]
+                t_total = t_total + self.data_dict['Trump result'][i]
+                count = count + 1
+            i = i + 1
+
+        if count == 0:
+            return (0.0, 0.0)
+
+        h_avg = h_total / count
+        t_avg = t_total / count
+        return (h_avg, t_avg)
 
 
     def polling_history_change(self):
