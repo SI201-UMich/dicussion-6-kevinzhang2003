@@ -54,20 +54,55 @@ class PollReader():
         and each value in a CSV is seperated by a comma.
         """
 
-        # iterate through each row of the data
-        for i in self.raw_data:
+        # Reset the dictionary in case this is called again
+        self.data_dict = {
+            'month': [],
+            'date': [],
+            'sample': [],
+            'sample type': [],
+            'Harris result': [],
+            'Trump result': []
+        }
 
-            # split up the row by column
-            seperated = i.split(' ')
+        if len(self.raw_data) == 0:
+            return
 
-            # map each part of the row to the correct column
-            self.data_dict['month'].append(seperated[0])
-            self.data_dict['date'].append(int(seperated[1]))
-            self.data_dict['sample'].append(int(seperated[2]))
-            self.data_dict['sample type'].append(seperated[2])
-            self.data_dict['Harris result'].append(float(seperated[3]))
-            self.data_dict['Trump result'].append(float(seperated[4]))
+        # Loop through lines. Skip header (first line).
+        for idx in range(len(self.raw_data)):
+            line = self.raw_data[idx].strip()
+            if line == "":
+                continue
+            if idx == 0:
+                # header line
+                continue
 
+            parts = line.split(',')
+            # Expecting 5 columns: month, date, sample, Harris result, Trump result
+            if len(parts) < 5:
+                continue
+
+            month = parts[0]
+            date_str = parts[1]
+            sample_field = parts[2]
+            harris_str = parts[3]
+            trump_str = parts[4]
+
+            # sample looks like "1880 LV" -> size and type
+            sample_parts = sample_field.split()
+            if len(sample_parts) >= 2:
+                sample_size_str = sample_parts[0]
+                sample_type = sample_parts[1]
+            else:
+                sample_size_str = sample_parts[0]
+                sample_type = ""
+
+            # Append with correct types
+            self.data_dict['month'].append(month)
+            self.data_dict['date'].append(int(date_str))
+            self.data_dict['sample'].append(int(sample_size_str))
+            self.data_dict['sample type'].append(sample_type)
+            self.data_dict['Harris result'].append(float(harris_str))
+            self.data_dict['Trump result'].append(float(trump_str))
 
     def highest_polling_candidate(self):
         """
